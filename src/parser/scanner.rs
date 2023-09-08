@@ -99,7 +99,8 @@ impl Scanner {
     }
 
     fn match_value(&mut self, expected: char) -> bool {
-        if self.is_at_end() || self.source.chars().nth(self.current + 1).unwrap_or('|') != expected
+        // dbg!("Inside match_value: {0}", &expected);
+        if self.is_at_end() || self.source.chars().nth(self.current).unwrap_or('|') != expected
         {
             return false
         }
