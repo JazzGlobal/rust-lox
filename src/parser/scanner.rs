@@ -81,8 +81,7 @@ impl Scanner {
             }
 
             default => {
-                if default.is_numeric()
-                {
+                if default.is_numeric() {
                     self.handle_number();
                 } else {
                     let x = format!(
@@ -132,15 +131,17 @@ impl Scanner {
         }
 
         return match by_num {
-            None => { self.source.chars().nth(self.current).unwrap_or('|') }
-            Some(num) =>
-                {
-                    if self.current + (num as usize) >= self.source.len() {
-                        return '\0';
-                    }
-                    self.source.chars().nth(self.current + (num as usize)).unwrap_or('|')
+            None => self.source.chars().nth(self.current).unwrap_or('|'),
+            Some(num) => {
+                if self.current + (num as usize) >= self.source.len() {
+                    return '\0';
                 }
-        }
+                self.source
+                    .chars()
+                    .nth(self.current + (num as usize))
+                    .unwrap_or('|')
+            }
+        };
     }
 
     fn handle_string_literal(&mut self) {
@@ -166,8 +167,7 @@ impl Scanner {
     }
 
     fn handle_number(&mut self) {
-        while self.peek(None).is_numeric()
-        {
+        while self.peek(None).is_numeric() {
             self.advance();
         }
         if self.peek(None) == '.' && self.peek(Some(1)).is_numeric() {
@@ -176,7 +176,10 @@ impl Scanner {
                 self.advance();
             }
         }
-        self.add_token(TokenType::NUMBER, self.source[self.start..self.current].to_string())
+        self.add_token(
+            TokenType::NUMBER,
+            self.source[self.start..self.current].to_string(),
+        )
     }
 }
 
