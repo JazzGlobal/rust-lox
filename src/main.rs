@@ -1,5 +1,6 @@
+use crate::parser::scanner;
 use crate::parser::scanner::Scanner;
-use crate::parser::token::Token;
+use crate::parser::token::{Token, TokenType};
 
 mod parser;
 
@@ -51,12 +52,10 @@ fn run_prompt() {
 // I wonder if this should return a Result to handle errors in the event that the function was called from
 // run_prompt.
 fn run(source: String) {
-    let scanner = Scanner { source };
-    let tokens = scanner.scan_tokens();
+    let mut scanner = scanner::create_scanner(source);
+    scanner.scan_tokens();
 
-    for token in tokens {
-        dbg!(token);
-    }
+    dbg!(scanner);
 }
 
 fn error(line: i32, message: String) {
