@@ -67,6 +67,14 @@ impl Scanner {
                     false => { self.add_token(TokenType::GREATER, ">".to_string()) }
                 }
             }
+            '/' => {
+                match self.match_value('/') {
+                    true => {
+                        while self.peek() != '\n' && !self.is_at_end() { self.advance(); }
+                    }
+                    false => { self.add_token(TokenType::SLASH, "/".to_string()) }
+                }
+            }
 
             default =>
                 {
@@ -106,6 +114,11 @@ impl Scanner {
         }
         self.current += 1;
         true
+    }
+
+    fn peek(&self) -> char {
+        if self.is_at_end() { return '\0' }
+        return self.source.chars().nth(self.current).unwrap_or('|');
     }
 }
 
