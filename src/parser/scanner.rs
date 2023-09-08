@@ -75,7 +75,12 @@ impl Scanner {
                     false => { self.add_token(TokenType::SLASH, "/".to_string()) }
                 }
             }
-
+            '\n' => {
+                self.line += 1;
+            }
+            ' ' | '\r' | '\t' => {
+                return
+            }
             default =>
                 {
                     let x = format!("Unexpected character {0} on Line {1}", default, self.line);
