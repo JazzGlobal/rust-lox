@@ -1,6 +1,7 @@
-use crate::scanner::Scanner;
+use crate::parser::scanner::Scanner;
+use crate::parser::token::Token;
 
-mod scanner;
+mod parser;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -32,11 +33,19 @@ fn run_file(file_path: &String) {
 }
 
 fn run_prompt() {
-    let mut line = String::new();
-    println!(">>");
-    // We'll likely need some error handling here.
-    std::io::stdin().read_line(&mut line).unwrap();
-    run(line);
+    loop {
+        let mut line = String::new();
+        println!(">>");
+        match std::io::stdin().read_line(&mut line) {
+            Ok(_) => {
+                run(line);
+            }
+            Err(_) => {
+                println!("An error occurred, exiting REPL.");
+                break;
+            }
+        };
+    }
 }
 
 // I wonder if this should return a Result to handle errors in the event that the function was called from
@@ -44,4 +53,17 @@ fn run_prompt() {
 fn run(source: String) {
     let scanner = Scanner { source };
     let tokens = scanner.scan_tokens();
+
+    for token in tokens {
+        dbg!(token);
+    }
+}
+
+fn error(line: i32, message: String) {
+    report(line, "".to_string(), message);
+}
+
+fn report(line: i32, location: String, message: String) {
+    let x = format!("[line {0}] Error {1} : {2}", line, location, message);
+    println!("{}", x);
 }
