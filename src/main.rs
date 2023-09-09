@@ -1,8 +1,7 @@
-use crate::parser::scanner;
-use crate::parser::scanner::Scanner;
-use crate::parser::token::{Token, TokenType};
+use crate::scanner::scanner::Scanner;
+use crate::scanner::token::{Token, TokenType};
 
-mod parser;
+mod scanner;
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -52,7 +51,7 @@ fn run_prompt() {
 // I wonder if this should return a Result to handle errors in the event that the function was called from
 // run_prompt.
 fn run(source: String) {
-    let mut scanner = scanner::create_scanner(source);
+    let mut scanner = scanner::scanner::create_scanner(source);
     scanner.scan_tokens();
 
     dbg!(scanner);

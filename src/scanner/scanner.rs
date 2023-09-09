@@ -1,4 +1,5 @@
-use crate::parser::token::{Token, TokenType};
+use crate::scanner::token::Token;
+use crate::TokenType;
 use std::fmt::format;
 use std::ops::Deref;
 use std::str::FromStr;
