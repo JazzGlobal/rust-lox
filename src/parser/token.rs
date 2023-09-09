@@ -1,5 +1,8 @@
 use std::any::Any;
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use std::str::FromStr;
+use std::string::ToString;
 
 #[derive(Debug)]
 pub enum TokenType {
@@ -50,6 +53,32 @@ pub enum TokenType {
     WHILE,
 
     EOF,
+}
+
+impl FromStr for TokenType {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<TokenType, Self::Err> {
+        match input {
+            "and" => Ok(TokenType::AND),
+            "class" => Ok(TokenType::CLASS),
+            "else" => Ok(TokenType::ELSE),
+            "false" => Ok(TokenType::FALSE),
+            "for" => Ok(TokenType::FOR),
+            "fun" => Ok(TokenType::FUN),
+            "if" => Ok(TokenType::IF),
+            "nil" => Ok(TokenType::NIL),
+            "or" => Ok(TokenType::OR),
+            "print" => Ok(TokenType::PRINT),
+            "return" => Ok(TokenType::RETURN),
+            "super" => Ok(TokenType::SUPER),
+            "this" => Ok(TokenType::THIS),
+            "true" => Ok(TokenType::TRUE),
+            "var" => Ok(TokenType::VAR),
+            "while" => Ok(TokenType::WHILE),
+            _ => Err(()),
+        }
+    }
 }
 
 impl Display for TokenType {
@@ -180,19 +209,24 @@ impl Display for TokenType {
 pub struct Token {
     pub token_type: TokenType,
     pub lexeme: String,
-    pub literal: String,
+    pub literal: Option<String>,
     pub line: i32,
     pub col: i32,
 }
 
 impl Display for Token {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut x: String;
+        match &self.literal {
+            None => x = "None".to_string(),
+            Some(value) => x = value.to_string(),
+        }
         write!(
             f,
             "{}",
             format!(
                 "{0} {1} {2} {3}",
-                &self.token_type, &self.lexeme, &self.literal, &self.col
+                &self.token_type, &self.lexeme, x, &self.col
             )
         )
     }

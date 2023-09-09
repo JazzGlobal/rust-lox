@@ -1,5 +1,7 @@
 use crate::parser::token::{Token, TokenType};
 use std::fmt::format;
+use std::ops::Deref;
+use std::str::FromStr;
 
 #[derive(Debug)]
 pub struct Scanner {
@@ -27,7 +29,7 @@ impl Scanner {
         self.tokens.push(Token {
             token_type: TokenType::EOF,
             lexeme: "".to_string(),
-            literal: "".to_string(),
+            literal: None,
             line: self.line,
             col: self.current_col,
         });
@@ -36,31 +38,31 @@ impl Scanner {
     fn scan_token(&mut self) {
         let current_char: char = self.advance();
         match current_char {
-            '(' => self.add_token(TokenType::LEFT_PAREN, current_char.to_string()),
-            ')' => self.add_token(TokenType::RIGHT_PAREN, current_char.to_string()),
-            '{' => self.add_token(TokenType::LEFT_BRACE, current_char.to_string()),
-            '}' => self.add_token(TokenType::RIGHT_BRACE, current_char.to_string()),
-            ',' => self.add_token(TokenType::COMMA, current_char.to_string()),
-            '.' => self.add_token(TokenType::DOT, current_char.to_string()),
-            '-' => self.add_token(TokenType::MINUS, current_char.to_string()),
-            '+' => self.add_token(TokenType::PLUS, current_char.to_string()),
-            ';' => self.add_token(TokenType::SEMICOLON, current_char.to_string()),
-            '*' => self.add_token(TokenType::STAR, current_char.to_string()),
+            '(' => self.add_token(TokenType::LEFT_PAREN, Some(current_char.to_string())),
+            ')' => self.add_token(TokenType::RIGHT_PAREN, Some(current_char.to_string())),
+            '{' => self.add_token(TokenType::LEFT_BRACE, Some(current_char.to_string())),
+            '}' => self.add_token(TokenType::RIGHT_BRACE, Some(current_char.to_string())),
+            ',' => self.add_token(TokenType::COMMA, Some(current_char.to_string())),
+            '.' => self.add_token(TokenType::DOT, Some(current_char.to_string())),
+            '-' => self.add_token(TokenType::MINUS, Some(current_char.to_string())),
+            '+' => self.add_token(TokenType::PLUS, Some(current_char.to_string())),
+            ';' => self.add_token(TokenType::SEMICOLON, Some(current_char.to_string())),
+            '*' => self.add_token(TokenType::STAR, Some(current_char.to_string())),
             '!' => match self.match_value('=') {
-                true => self.add_token(TokenType::BANG_EQUAL, "!=".to_string()),
-                false => self.add_token(TokenType::BANG, "!".to_string()),
+                true => self.add_token(TokenType::BANG_EQUAL, Some("!=".to_string())),
+                false => self.add_token(TokenType::BANG, Some("!".to_string())),
             },
             '=' => match self.match_value('=') {
-                true => self.add_token(TokenType::EQUAL_EQUAL, "==".to_string()),
-                false => self.add_token(TokenType::EQUAL, "=".to_string()),
+                true => self.add_token(TokenType::EQUAL_EQUAL, Some("==".to_string())),
+                false => self.add_token(TokenType::EQUAL, Some("=".to_string())),
             },
             '<' => match self.match_value('=') {
-                true => self.add_token(TokenType::LESS_EQUAL, "<=".to_string()),
-                false => self.add_token(TokenType::LESS, "<".to_string()),
+                true => self.add_token(TokenType::LESS_EQUAL, Some("<=".to_string())),
+                false => self.add_token(TokenType::LESS, Some("<".to_string())),
             },
             '>' => match self.match_value('=') {
-                true => self.add_token(TokenType::GREATER_EQUAL, ">=".to_string()),
-                false => self.add_token(TokenType::GREATER, ">".to_string()),
+                true => self.add_token(TokenType::GREATER_EQUAL, Some(">=".to_string())),
+                false => self.add_token(TokenType::GREATER, Some(">".to_string())),
             },
             '/' => match self.match_value('/') {
                 true => {
@@ -68,7 +70,7 @@ impl Scanner {
                         self.advance();
                     }
                 }
-                false => self.add_token(TokenType::SLASH, "/".to_string()),
+                false => self.add_token(TokenType::SLASH, Some("/".to_string())),
             },
             '\n' => {
                 self.line += 1;
@@ -83,6 +85,8 @@ impl Scanner {
             default => {
                 if default.is_numeric() {
                     self.handle_number();
+                } else if default.is_alphabetic() || default == '_' {
+                    self.handle_identifier();
                 } else {
                     let x = format!(
                         "Unexpected character {0} on Line {1}, col {2}",
@@ -94,7 +98,7 @@ impl Scanner {
         };
     }
 
-    fn add_token(&mut self, token_type: TokenType, literal: String) {
+    fn add_token(&mut self, token_type: TokenType, literal: Option<String>) {
         let text = self.source[self.start..self.current].to_string();
         self.tokens.push(Token {
             token_type,
@@ -163,7 +167,7 @@ impl Scanner {
 
         self.advance();
         let value = self.source[self.start + 1..self.current - 1].to_string();
-        self.add_token(TokenType::STRING, value);
+        self.add_token(TokenType::STRING, Some(value));
     }
 
     fn handle_number(&mut self) {
@@ -178,8 +182,21 @@ impl Scanner {
         }
         self.add_token(
             TokenType::NUMBER,
-            self.source[self.start..self.current].to_string(),
+            Some(self.source[self.start..self.current].to_string()),
         )
+    }
+
+    fn handle_identifier(&mut self) {
+        while self.peek(None).is_alphanumeric() || self.peek(None) == '_' {
+            self.advance();
+        }
+
+        let code_substring = &self.source[self.start..self.current];
+        // This might end up being a bug since we're pushing an TokenType::IDENTIFIER on error.
+        self.add_token(
+            TokenType::from_str(code_substring).unwrap_or(TokenType::IDENTIFIER),
+            None,
+        );
     }
 }
 

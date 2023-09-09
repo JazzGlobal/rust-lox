@@ -1,4 +1,1 @@
-!!!!
-!!!!
-"hello world"
-var x = 1 + 2
+var x = 1 == 1 and true
