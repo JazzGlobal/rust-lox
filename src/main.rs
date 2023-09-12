@@ -1,9 +1,33 @@
 use crate::scanner::scanner::Scanner;
 use crate::scanner::token::{Token, TokenType};
+use crate::parser::expression;
+use crate::parser::expression::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, LoxType, UnaryExpr};
+use crate::parser::expression::LoxType::LoxNumber;
 
+mod parser;
 mod scanner;
 
 fn main() {
+    // Expression Pretty Printing.
+    // let x = Expr::BINARY_EXPR(BinaryExpr {
+    //     left: Box::new(Expr::UNARY_EXPR(UnaryExpr { operator: Token {
+    //         token_type: TokenType::MINUS,
+    //         lexeme: "-".to_string(),
+    //         literal: None,
+    //         line: 0,
+    //         col: 0,
+    //     }, right: Box::new(Expr::LITERAL_EXPR(LiteralExpr { value: LoxNumber(Some(123 as f64)) })) })),
+    //     operator: Token {
+    //         token_type: TokenType::STAR,
+    //         lexeme: "*".to_string(),
+    //         literal: None,
+    //         line: 0,
+    //         col: 0,
+    //     },
+    //     right: Box::new(Expr::GROUP_EXPR(GroupingExpr{ expression: Box::new(Expr::LITERAL_EXPR(LiteralExpr { value: LoxNumber(Some(45.67)) })) })),
+    // });
+    // expression::handle_expr(x);
+
     let args: Vec<String> = std::env::args().collect();
     if args.len() > 2 {
         println!("Usage: jlox [script]");
