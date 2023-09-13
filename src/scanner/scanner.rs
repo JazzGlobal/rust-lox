@@ -15,6 +15,9 @@ pub struct Scanner {
 }
 
 impl Scanner {
+    pub fn get_tokens(&self) -> Vec<Token> {
+        self.tokens.to_vec()
+    }
     pub fn scan_tokens(&mut self) {
         self.start = 0;
         self.current = 0;
