@@ -4,6 +4,8 @@ use crate::parser::expression::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, Lox
 use crate::scanner::scanner::Scanner;
 use crate::scanner::token::{Token, TokenType};
 
+use color_eyre::eyre::Result;
+
 mod parser;
 mod scanner;
 
@@ -28,6 +30,7 @@ fn main() {
     // });
     // expression::handle_expr(x);
 
+    color_eyre::install().unwrap();
     let args: Vec<String> = std::env::args().collect();
     if args.len() > 2 {
         println!("Usage: jlox [script]");

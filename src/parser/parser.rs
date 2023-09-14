@@ -1,9 +1,9 @@
+use crate::parser::expression::Expr::{GROUP_EXPR, LITERAL_EXPR};
+use crate::parser::expression::LoxType::{LoxBoolean, LoxNil, LoxNumber, LoxString};
 use crate::parser::expression::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, LoxType, UnaryExpr};
 use crate::scanner::token::{Token, TokenType};
 use std::ptr::eq;
 use std::str::FromStr;
-use crate::parser::expression::Expr::{GROUP_EXPR, LITERAL_EXPR};
-use crate::parser::expression::LoxType::{LoxBoolean, LoxNil, LoxNumber, LoxString};
 
 #[derive(Debug)]
 pub struct Parser {
@@ -13,7 +13,6 @@ pub struct Parser {
 }
 
 impl Parser {
-
     pub fn parse(&mut self) -> Expr {
         let x = self.expression();
         x
@@ -25,8 +24,9 @@ impl Parser {
 
     fn equality(&mut self) -> Expr {
         let mut left: Expr = self.comparison();
-        while self.peek().token_type == TokenType::BANG_EQUAL ||
-              self.peek().token_type == TokenType::EQUAL_EQUAL {
+        while self.peek().token_type == TokenType::BANG_EQUAL
+            || self.peek().token_type == TokenType::EQUAL_EQUAL
+        {
             self.advance();
             let operator = self.previous();
             let right = self.comparison();
@@ -41,10 +41,10 @@ impl Parser {
 
     fn comparison(&mut self) -> Expr {
         let mut left: Expr = self.term();
-        while self.peek().token_type == TokenType::GREATER_EQUAL ||
-              self.peek().token_type == TokenType::GREATER ||
-              self.peek().token_type == TokenType::LESS ||
-              self.peek().token_type == TokenType::LESS_EQUAL
+        while self.peek().token_type == TokenType::GREATER_EQUAL
+            || self.peek().token_type == TokenType::GREATER
+            || self.peek().token_type == TokenType::LESS
+            || self.peek().token_type == TokenType::LESS_EQUAL
         {
             self.advance();
             let operator = self.previous();
@@ -61,8 +61,8 @@ impl Parser {
 
     fn term(&mut self) -> Expr {
         let mut left = self.factor();
-        while self.peek().token_type == TokenType::MINUS ||
-            self.peek().token_type == TokenType::PLUS
+        while self.peek().token_type == TokenType::MINUS
+            || self.peek().token_type == TokenType::PLUS
         {
             self.advance();
             let operator = self.previous();
@@ -79,8 +79,9 @@ impl Parser {
     fn factor(&mut self) -> Expr {
         let mut left = self.unary();
 
-        while self.peek().token_type == TokenType::SLASH ||
-              self.peek().token_type == TokenType::STAR {
+        while self.peek().token_type == TokenType::SLASH
+            || self.peek().token_type == TokenType::STAR
+        {
             self.advance();
             let operator = self.previous();
             let right = self.unary();
@@ -95,13 +96,14 @@ impl Parser {
     }
 
     fn unary(&mut self) -> Expr {
-        if self.peek().token_type == TokenType::BANG ||
-            self.peek().token_type == TokenType::MINUS
-        {
+        if self.peek().token_type == TokenType::BANG || self.peek().token_type == TokenType::MINUS {
             self.advance();
             let operator = self.previous();
             let right = self.unary();
-            return Expr::UNARY_EXPR(UnaryExpr { operator, right: Box::new(right) })
+            return Expr::UNARY_EXPR(UnaryExpr {
+                operator,
+                right: Box::new(right),
+            });
         }
 
         return self.primary();
@@ -109,46 +111,57 @@ impl Parser {
 
     fn primary(&mut self) -> Expr {
         match self.peek().token_type {
-            TokenType::FALSE =>
-                {
-                    self.advance();
-                    return LITERAL_EXPR(LiteralExpr {value: LoxBoolean(Some(false))})
-                }
+            TokenType::FALSE => {
+                self.advance();
+                return LITERAL_EXPR(LiteralExpr {
+                    value: LoxBoolean(Some(false)),
+                });
+            }
             TokenType::TRUE => {
                 self.advance();
-                return LITERAL_EXPR(LiteralExpr {value: LoxBoolean(Some(true))})
+                return LITERAL_EXPR(LiteralExpr {
+                    value: LoxBoolean(Some(true)),
+                });
             }
             TokenType::NIL => {
                 self.advance();
-                return LITERAL_EXPR(LiteralExpr {value: LoxType::LoxNil})
+                return LITERAL_EXPR(LiteralExpr {
+                    value: LoxType::LoxNil,
+                });
             }
-            TokenType::NUMBER =>
-                {
-                    self.advance();
-                    let x = self.previous().literal.unwrap();
-                    let y = &str::parse::<f64>(&x).unwrap();
-                    return LITERAL_EXPR(LiteralExpr { value: LoxNumber(Some(*y)) })
-                }
+            TokenType::NUMBER => {
+                self.advance();
+                let x = self.previous().literal.unwrap();
+                let y = &str::parse::<f64>(&x).unwrap();
+                return LITERAL_EXPR(LiteralExpr {
+                    value: LoxNumber(Some(*y)),
+                });
+            }
             TokenType::STRING => {
                 self.advance();
-                return LITERAL_EXPR(LiteralExpr { value: LoxString(Some(self.previous().literal.unwrap_or("".to_string()))) })
+                return LITERAL_EXPR(LiteralExpr {
+                    value: LoxString(Some(self.previous().literal.unwrap_or("".to_string()))),
+                });
             }
-            TokenType::LEFT_PAREN =>
-                {
-                    self.advance();
-                    let mut expr = self.expression();
-                    self.consume(TokenType::RIGHT_PAREN, "Expect ')' after expression.".to_string());
-                    return GROUP_EXPR(GroupingExpr { expression: Box::new((expr)) })
-                }
+            TokenType::LEFT_PAREN => {
+                self.advance();
+                let mut expr = self.expression();
+                self.consume(
+                    TokenType::RIGHT_PAREN,
+                    "Expect ')' after expression.".to_string(),
+                );
+                return GROUP_EXPR(GroupingExpr {
+                    expression: Box::new((expr)),
+                });
+            }
             _ => {}
         }
         panic!("Expect expression.");
     }
 
     fn consume(&mut self, token_type: TokenType, message: String) -> Token {
-        if self.check(token_type)
-        {
-            return self.advance()
+        if self.check(token_type) {
+            return self.advance();
         }
         let error = format!("{0} at end. {1}", self.peek(), message);
         self.errors.push(error);
@@ -188,17 +201,33 @@ impl Parser {
         self.advance();
 
         while !self.is_at_end() {
-            if self.previous().token_type == TokenType::SEMICOLON { return; }
+            if self.previous().token_type == TokenType::SEMICOLON {
+                return;
+            }
 
             match self.peek().token_type {
-                TokenType::CLASS | TokenType::FUN | TokenType::VAR | TokenType::FOR |
-                TokenType::IF | TokenType::WHILE | TokenType::PRINT | TokenType::RETURN => { return; }
-                _ => { self.advance(); }
+                TokenType::CLASS
+                | TokenType::FUN
+                | TokenType::VAR
+                | TokenType::FOR
+                | TokenType::IF
+                | TokenType::WHILE
+                | TokenType::PRINT
+                | TokenType::RETURN => {
+                    return;
+                }
+                _ => {
+                    self.advance();
+                }
             }
         }
     }
 }
 
 pub fn create_parser(tokens: Vec<Token>) -> Parser {
-    Parser { tokens, current: 0, errors: vec![]}
+    Parser {
+        tokens,
+        current: 0,
+        errors: vec![],
+    }
 }
