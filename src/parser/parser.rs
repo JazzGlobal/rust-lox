@@ -1,9 +1,9 @@
 use crate::parser::expression::Expr::{GROUP_EXPR, LITERAL_EXPR};
-use crate::parser::expression::LoxType::{LoxBoolean, LoxNil, LoxNumber, LoxString};
+use crate::parser::expression::LoxType::{LoxBoolean, LoxNumber, LoxString};
 use crate::parser::expression::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, LoxType, UnaryExpr};
 use crate::scanner::token::{Token, TokenType};
-use std::ptr::eq;
-use std::str::FromStr;
+
+
 
 #[derive(Debug)]
 pub struct Parser {
@@ -145,13 +145,13 @@ impl Parser {
             }
             TokenType::LEFT_PAREN => {
                 self.advance();
-                let mut expr = self.expression();
+                let expr = self.expression();
                 self.consume(
                     TokenType::RIGHT_PAREN,
                     "Expect ')' after expression.".to_string(),
                 );
                 return GROUP_EXPR(GroupingExpr {
-                    expression: Box::new((expr)),
+                    expression: Box::new(expr),
                 });
             }
             _ => {}
