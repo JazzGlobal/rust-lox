@@ -1,6 +1,7 @@
 use crate::parser::expression;
 use crate::parser::expression::LoxType::LoxNumber;
 use crate::parser::expression::{BinaryExpr, Expr, GroupingExpr, LiteralExpr, LoxType, UnaryExpr};
+use crate::parser::parser::Parser;
 use crate::scanner::scanner::Scanner;
 use crate::scanner::token::{Token, TokenType};
 
@@ -78,15 +79,24 @@ fn run(source: String) {
     let mut scanner = scanner::scanner::create_scanner(source);
     scanner.scan_tokens();
 
+    dbg!(scanner.get_tokens());
     let mut parser = parser::parser::create_parser(scanner.get_tokens());
     let x = parser.parse();
+    dbg!(&x);
     if !parser.errors.is_empty() {
         for error in parser.errors {
             println!("{}", error);
         }
         panic!("Parser errors.");
     }
-    dbg!(x);
+    let x = parser.interpret(x);
+    if !parser.errors.is_empty() {
+        for error in parser.errors {
+            println!("ERROR: {0}", error);
+        }
+    } else {
+        dbg!(x);
+    }
 }
 
 fn error(line: i32, message: String) {

@@ -1,5 +1,6 @@
 use crate::scanner::token::Token;
 use std::any::Any;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug)]
 pub enum Expr {
@@ -61,6 +62,12 @@ pub enum LoxType {
     LoxBoolean(Option<bool>),
     LoxNumber(Option<f64>),
     LoxNil,
+}
+
+impl Display for LoxType {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
 
 #[derive(Debug)]
