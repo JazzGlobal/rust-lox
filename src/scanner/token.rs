@@ -1,5 +1,5 @@
-use std::any::Any;
-use std::collections::HashMap;
+
+
 use std::fmt::{Display, Formatter};
 use std::str::FromStr;
 use std::string::ToString;
@@ -216,7 +216,7 @@ pub struct Token {
 
 impl Display for Token {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let mut x: String;
+        let x: String;
         match &self.literal {
             None => x = "None".to_string(),
             Some(value) => x = value.to_string(),
